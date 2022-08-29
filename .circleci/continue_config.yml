@@ -78,7 +78,7 @@ jobs:
           name: terraform
           command: |
             cd week2/stacks/<< parameters.stack >>
-            terraform destroy -auto-approve tfapply
+            terraform destroy -auto-approve
 
 # workflows are pipelines that are conditionally triggered depending of the on the pipeline.parameters
 # pipeline.parameters are passed down from the config.yml depending on the path of the code change
