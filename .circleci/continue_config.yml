@@ -179,7 +179,7 @@ workflows:
       - apply:
           name: app-a-apply-stg
           <<: *default-context
-          stack: 'stg'
+          stack: 'app-a'
           requires:
             - app-a-approve-stg
       - app-a-destroy-approve-stg:
@@ -189,8 +189,6 @@ workflows:
       - destroy:
           name: app-a-destroy-stg
           <<: *default-context
-          stack: 'stg'
+          stack: 'app-a'
           requires:
             - app-a-destroy-approve-stg
-
-
