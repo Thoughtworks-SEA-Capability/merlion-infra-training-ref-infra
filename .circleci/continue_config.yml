@@ -65,6 +65,21 @@ jobs:
             cd week2/stacks/<< parameters.stack >>
             terraform apply -auto-approve tfapply
 
+  destroy:
+    docker:
+      - image: ankitwal/iat-terraform-aws:v0.1.0
+    parameters:
+      stack:
+        type: string
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: terraform
+          command: |
+            cd week2/stacks/<< parameters.stack >>
+            terraform destroy -auto-approve tfapply
+
 # workflows are pipelines that are conditionally triggered depending of the on the pipeline.parameters
 # pipeline.parameters are passed down from the config.yml depending on the path of the code change
 # workflows invoke re-usable jobs with relevant parameters
@@ -127,6 +142,10 @@ workflows:
           stack: 'eks'
           requires:
             - eks-plan-stg
+      - eks-approve-prod:
+          type: approval
+          requires:
+            - eks-apply-stg
       - plan:
           name: eks-plan-prod
           <<: *default-context
@@ -140,3 +159,38 @@ workflows:
           stack: 'eks'
           requires:
             - eks-plan-prod
+
+  app-a:
+    when:
+      condition:
+        or:
+          - << pipeline.parameters.pipeline-config >>
+          - << pipeline.parameters.app-a >>
+    jobs:
+      - plan:
+          name: app-a-plan-stg
+          <<: *default-context
+          environment: 'stg'
+          stack: 'app-a'
+      - app-a-approve-stg:
+          type: approval
+          requires:
+            - app-a-plan-stg
+      - apply:
+          name: app-a-apply-stg
+          <<: *default-context
+          stack: 'stg'
+          requires:
+            - app-a-approve-stg
+      - app-a-destroy-approve-stg:
+          type: approval
+          requires:
+            - app-a-approve-stg
+      - destroy:
+          name: app-a-destroy-stg
+          <<: *default-context
+          stack: 'stg'
+          requires:
+            - app-a-destroy-approve-stg
+
+
