@@ -78,7 +78,8 @@ jobs:
           name: terraform
           command: |
             cd week2/stacks/<< parameters.stack >>
-            terraform destroy -auto-approve
+            terraform destroy -auto-approve \
+            -var 'team_name=<< pipeline.parameters.team >>'
 
 # workflows are pipelines that are conditionally triggered depending of the on the pipeline.parameters
 # pipeline.parameters are passed down from the config.yml depending on the path of the code change
@@ -189,6 +190,7 @@ workflows:
       - destroy:
           name: app-a-destroy-stg
           <<: *default-context
+          environment: 'stg'
           stack: 'app-a'
           requires:
             - app-a-destroy-approve-stg
